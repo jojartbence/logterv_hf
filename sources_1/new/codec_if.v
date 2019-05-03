@@ -14,7 +14,10 @@ module adder
     reg [7:0] out;
     always @ (posedge clk)
     begin
-        out <= in_exp_a + in_exp_b - 63;    //Substract the offset once because we added it two times
+        if(rst)
+            out <= 0;
+        else
+            out <= in_exp_a + in_exp_b - 63;    //Substract the offset once because we added it two times
     end
     assign out_exp = out [6:0];             //8th bit-> overflow?
 endmodule
@@ -33,7 +36,10 @@ module multiplier
     reg [33:0] out;
     always @ (posedge clk)
     begin
-        out <= {1'b1,in_mantissa_a} * {1'b1,in_mantissa_b};       //the fraction part doesn't contain the hidden 1
+        if(rst)
+            out <= 0;
+        else
+            out <= {1'b1,in_mantissa_a} * {1'b1,in_mantissa_b};       //the fraction part doesn't contain the hidden 1
     end
     assign out_mantissa = out[33:0];       //Underflow detection?
 endmodule
@@ -50,7 +56,10 @@ module signbit
     reg out;
     always @ (posedge clk)
     begin
-        out <= in_sign_a ^ in_sign_b;
+        if(rst)
+            out <= 0;
+        else
+            out <= in_sign_a ^ in_sign_b;
     end
     assign out_sign = out;
     
@@ -70,15 +79,23 @@ module normaliser
     reg [15:0] mantissa;
     always @ (posedge clk)
     begin
-        if(in_mantissa[33] == 1)                
+        if(rst)
         begin
-            exp <= in_exp + 1;
-            mantissa <= in_mantissa[32:17];
+            mantissa <= 0;
+            exp <= 0;
         end
         else
         begin
-            exp <= in_exp;
-            mantissa <= in_mantissa[31:16];
+            if(in_mantissa[33] == 1)                
+            begin
+                exp <= in_exp + 1;
+                mantissa <= in_mantissa[32:17];
+            end
+            else
+            begin
+                exp <= in_exp;
+                mantissa <= in_mantissa[31:16];
+            end
         end
     end
     assign out_exp_normalised = exp;
