@@ -29,8 +29,8 @@ always #1
 
 initial
 begin
-    #0 assign test_float_a = 24'b010000010100000000000000; //200,125
-    #0 assign test_float_b = 24'b001111101000000000000000; //0,375
+    #0 assign test_float_a = 24'b010001101001000001000000; //200,125
+    #0 assign test_float_b = 24'b001111011000000000000000; //0,375
     #30 assign rst = 1;
     #5 assign rst = 0;
     #15 assign test_float_a = 24'b001101110101010011001001; //0,0051999688148498535

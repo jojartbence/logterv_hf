@@ -40,7 +40,7 @@ module multiplier
    input             rst,
    input [15:0]  in_mantissa_a,
    input [15:0]  in_mantissa_b,
-   output [33:0] out_mantissa
+   output [17:0] out_mantissa
 );
 
     reg [33:0] out;
@@ -51,7 +51,7 @@ module multiplier
         else
             out <= {1'b1,in_mantissa_a} * {1'b1,in_mantissa_b};       //the fraction part doesn't contain the hidden 1
     end
-    assign out_mantissa = out[33:0];       //Underflow detection?
+    assign out_mantissa = out[33:16];       //Underflow detection?
 endmodule
 
 
@@ -81,7 +81,7 @@ module normaliser
    input            clk,
    input            rst,
    input [6:0]      in_exp,
-   input [33:0]     in_mantissa,
+   input [17:0]     in_mantissa,
    output [6:0]     out_exp_normalised,
    output [15:0]    out_mantissa_normalised,
    output out_overflow
@@ -98,17 +98,17 @@ module normaliser
         end
         else
         begin
-            if(in_mantissa[33] == 1)                
+            if(in_mantissa[17] == 1)                
             begin
                 overflow <= (in_exp == 127);
                 exp <= in_exp + 1;
-                mantissa <= in_mantissa[32:17];
+                mantissa <= in_mantissa[16:1];
             end
             else
             begin
                 overflow <= 0;
                 exp <= in_exp;
-                mantissa <= in_mantissa[31:16];
+                mantissa <= in_mantissa[15:0];
             end
         end
     end

@@ -34,7 +34,7 @@ module top_level(
 
 wire [6:0] out_exp;
 wire [6:0] normalised_exp;
-wire [33:0] out_mantissa;
+wire [17:0] out_mantissa;
 wire [15:0] normalised_mantissa;
 wire out_sign;
 reg [23:0] out;
