@@ -26,7 +26,9 @@ module top_level(
     
     input [23:0]    float_a,
     input [23:0]    float_b,
-    output [23:0]   float_out
+    output [23:0]   float_out,
+    output float_out_overflow,
+    output float_out_underflow
 );
 
 
@@ -37,13 +39,22 @@ wire [15:0] normalised_mantissa;
 wire out_sign;
 reg [23:0] out;
 
+wire adder_underflow;
+wire adder_overflow;
+wire normalizer_overflow;
+
+reg overflow;
+reg underflow;
+
 adder uut_adder
 (
     .clk    (clk),
     .rst    (rst),
     .in_exp_a (float_a[22:16]),
     .in_exp_b (float_b[22:16]),
-    .out_exp (out_exp)
+    .out_exp (out_exp),
+    .out_underflow (adder_underflow),
+    .out_overflow (adder_overflow)
 );
 
 multiplier uut_multiplier
@@ -62,7 +73,8 @@ normaliser uut_normaliser
     .in_exp (out_exp),
     .in_mantissa (out_mantissa),
     .out_exp_normalised (normalised_exp),
-    .out_mantissa_normalised (normalised_mantissa)
+    .out_mantissa_normalised (normalised_mantissa),
+    .out_overflow (normalizer_overflow)
 );
 
 signbit uut_signbit
@@ -80,7 +92,11 @@ begin
     out[23] <= out_sign;
     out[22:16] <= normalised_exp;
     out[15:0] <= normalised_mantissa;
+    overflow <= adder_overflow | normalizer_overflow;
+    underflow <= adder_underflow;
 end
 assign float_out = out;
+assign float_out_overflow = overflow;
+assign float_out_underflow = underflow;
 
 endmodule

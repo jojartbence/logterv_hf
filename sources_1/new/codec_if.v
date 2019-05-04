@@ -9,17 +9,27 @@ module adder
    input             rst,
    input [6:0]  in_exp_a,
    input [6:0]  in_exp_b,
-   output [6:0] out_exp
+   output [6:0] out_exp,
+   output out_underflow,
+   output out_overflow
 );
     reg [7:0] out;
+    reg underflow;
+    reg overflow;
     always @ (posedge clk)
     begin
         if(rst)
             out <= 0;
         else
+        begin
             out <= in_exp_a + in_exp_b - 63;    //Substract the offset once because we added it two times
+            underflow <= (in_exp_a + in_exp_b) < 63;
+            overflow <= (in_exp_a + in_exp_b) > 190;
+        end
     end
     assign out_exp = out [6:0];             //8th bit-> overflow?
+    assign out_underflow = underflow;
+    assign out_overflow = overflow;
 endmodule
 
 
@@ -73,10 +83,12 @@ module normaliser
    input [6:0]      in_exp,
    input [33:0]     in_mantissa,
    output [6:0]     out_exp_normalised,
-   output [15:0]    out_mantissa_normalised
+   output [15:0]    out_mantissa_normalised,
+   output out_overflow
 );
     reg [6:0] exp;
     reg [15:0] mantissa;
+    reg overflow;
     always @ (posedge clk)
     begin
         if(rst)
@@ -88,11 +100,13 @@ module normaliser
         begin
             if(in_mantissa[33] == 1)                
             begin
+                overflow <= (in_exp == 127);
                 exp <= in_exp + 1;
                 mantissa <= in_mantissa[32:17];
             end
             else
             begin
+                overflow <= 0;
                 exp <= in_exp;
                 mantissa <= in_mantissa[31:16];
             end
@@ -100,6 +114,7 @@ module normaliser
     end
     assign out_exp_normalised = exp;
     assign out_mantissa_normalised = mantissa;
+    assign out_overflow = overflow;
 endmodule
 
 
