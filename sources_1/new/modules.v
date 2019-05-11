@@ -49,7 +49,7 @@ module multiplier
         if(rst)
             out <= 0;
         else
-            out <= {1'b1,in_mantissa_a} * {1'b1,in_mantissa_b};       //the fraction part doesn't contain the hidden 1
+            out <= {1'b1,in_mantissa_a} * {1'b1,in_mantissa_b};       //the fraction part doesnt contain the hidden 1
     end
     assign out_mantissa = out[33:16];       //Underflow detection?
 endmodule
