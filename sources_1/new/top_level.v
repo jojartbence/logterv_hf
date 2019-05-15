@@ -47,12 +47,21 @@ multiplier uut_multiplier
     .out_mantissa (out_mantissa)
 );
 
+reg [6:0] out_exp_reg;
+reg [6:0] out_mantissa_reg;
+always @ (posedge clk)  //PIPELINE'D YO
+begin
+    out_exp_reg <= out_exp;
+    out_mantissa_reg <= out_mantissa;
+end
+
+
 normaliser uut_normaliser
 (
      .clk    (clk),
     .rst    (rst),
-    .in_exp (out_exp),
-    .in_mantissa (out_mantissa),
+    .in_exp (out_exp_reg),
+    .in_mantissa (out_mantissa_reg),
     .out_exp_normalised (normalised_exp),
     .out_mantissa_normalised (normalised_mantissa),
     .out_overflow (normalizer_overflow)
@@ -67,6 +76,9 @@ signbit uut_signbit
     .out_sign (out_sign)
 );
     
+
+
+
 
 always @ (posedge clk)
 begin

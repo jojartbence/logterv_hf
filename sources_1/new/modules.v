@@ -16,15 +16,23 @@ module adder
     reg [7:0] out;
     reg underflow;
     reg overflow;
+    reg [6:0] exp_a_local;      //TODO test if it is necessary
+    reg [6:0] exp_b_local;
+    
+    always @ (posedge clk)
+    begin
+        exp_a_local <= in_exp_a;
+        exp_b_local <= in_exp_b;
+    end
     always @ (posedge clk)
     begin
         if(rst)
             out <= 0;
         else
         begin
-            out <= in_exp_a + in_exp_b - 63;    //Substract the offset once because we added it two times
-            underflow <= (in_exp_a + in_exp_b) < 63;
-            overflow <= (in_exp_a + in_exp_b) > 190;
+            out <= exp_a_local + exp_b_local - 63;    //Substract the offset once because we added it two times
+            underflow <= (exp_a_local + exp_b_local) < 63;
+            overflow <= (exp_a_local + exp_b_local) > 190;
         end
     end
     assign out_exp = out [6:0];             //8th bit-> overflow?
@@ -44,12 +52,19 @@ module multiplier
 );
 
     reg [33:0] out;
+    reg [15:0] mantissa_a_local;    //TODO test if it is necessary
+    reg [15:0] mantissa_b_local;
+    always @ (posedge clk)
+    begin
+        mantissa_a_local  <= in_mantissa_a;
+        mantissa_b_local <= in_mantissa_b;
+    end
     always @ (posedge clk)
     begin
         if(rst)
             out <= 0;
         else
-            out <= {1'b1,in_mantissa_a} * {1'b1,in_mantissa_b};       //the fraction part doesnt contain the hidden 1
+            out <= {1'b1,mantissa_a_local} * {1'b1,mantissa_b_local};       //the fraction part doesnt contain the hidden 1
     end
     assign out_mantissa = out[33:16];       //Underflow detection?
 endmodule
@@ -64,6 +79,13 @@ module signbit
     output out_sign
 );
     reg out;
+    reg sign_a_local;       //TODO test if it is necessary (definitely not)
+    reg sign_b_local;
+    always @ (posedge clk)
+    begin
+        sign_a_local  <= in_sign_a;
+        sign_b_local <= in_sign_b;
+    end
     always @ (posedge clk)
     begin
         if(rst)
@@ -74,7 +96,6 @@ module signbit
     assign out_sign = out;
     
 endmodule
-
 
 module normaliser
 (
