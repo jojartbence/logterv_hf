@@ -48,7 +48,7 @@ multiplier uut_multiplier
 );
 
 reg [6:0] out_exp_reg;
-reg [6:0] out_mantissa_reg;
+    reg [17:0] out_mantissa_reg;
 always @ (posedge clk)  //PIPELINE'D YO
 begin
     out_exp_reg <= out_exp;
