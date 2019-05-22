@@ -13,9 +13,12 @@ module adder
    output out_underflow,
    output out_overflow
 );
-    reg [7:0] out;
-    reg underflow;
-    reg overflow;
+    reg [7:0] out;    
+    reg [7:0] adder_reg;
+    reg underflow_reg;
+    reg underflow_out_reg;
+    reg overflow_reg;
+    reg overflow_out_reg;
     reg [6:0] exp_a_local;      //TODO test if it is necessary
     reg [6:0] exp_b_local;
     
@@ -27,17 +30,28 @@ module adder
     always @ (posedge clk)
     begin
         if(rst)
+            adder_reg <= 0;
+        else
+        begin
+            adder_reg <= exp_a_local + exp_b_local - 63;    //Substract the offset once because we added it two times
+            underflow_reg <= (exp_a_local + exp_b_local) < 63;
+            overflow_reg <= (exp_a_local + exp_b_local) > 190;
+        end
+    end
+    always @ (posedge clk)
+    begin
+        if(rst)
             out <= 0;
         else
         begin
-            out <= exp_a_local + exp_b_local - 63;    //Substract the offset once because we added it two times
-            underflow <= (exp_a_local + exp_b_local) < 63;
-            overflow <= (exp_a_local + exp_b_local) > 190;
+            out <= adder_reg;
+            underflow_out_reg <= underflow_reg;
+            overflow_out_reg <= overflow_reg;
         end
     end
     assign out_exp = out [6:0];             //8th bit-> overflow?
-    assign out_underflow = underflow;
-    assign out_overflow = overflow;
+    assign out_underflow = underflow_out_reg;
+    assign out_overflow = overflow_out_reg;
 endmodule
 
 
@@ -52,6 +66,7 @@ module multiplier
 );
 
     reg [33:0] out;
+    reg [33:0] multiplier_reg;
     reg [15:0] mantissa_a_local;    //TODO test if it is necessary
     reg [15:0] mantissa_b_local;
     always @ (posedge clk)
@@ -62,9 +77,16 @@ module multiplier
     always @ (posedge clk)
     begin
         if(rst)
-            out <= 0;
+            multiplier_reg <= 0;
         else
-            out <= {1'b1,mantissa_a_local} * {1'b1,mantissa_b_local};       //the fraction part doesnt contain the hidden 1
+            multiplier_reg <= {1'b1,mantissa_a_local} * {1'b1,mantissa_b_local};       //the fraction part doesnt contain the hidden 1
+    end
+    always @ (posedge clk)
+    begin
+    if(rst)
+        out <= 0;
+    else
+        out <= multiplier_reg;       //the fraction part doesnt contain the hidden 1
     end
     assign out_mantissa = out[33:16];       //Underflow detection?
 endmodule
@@ -78,8 +100,9 @@ module signbit
     input in_sign_b,
     output out_sign
 );
+    reg sign_reg;
     reg out;
-    reg sign_a_local;       //TODO test if it is necessary (definitely not)
+    reg sign_a_local;       
     reg sign_b_local;
     always @ (posedge clk)
     begin
@@ -89,12 +112,18 @@ module signbit
     always @ (posedge clk)
     begin
         if(rst)
+            sign_reg <= 0;
+        else
+            sign_reg <= in_sign_a ^ in_sign_b;
+    end
+    always @ (posedge clk)
+    begin
+        if(rst)
             out <= 0;
         else
             out <= in_sign_a ^ in_sign_b;
     end
     assign out_sign = out;
-    
 endmodule
 
 module normaliser
@@ -137,5 +166,3 @@ module normaliser
     assign out_mantissa_normalised = mantissa;
     assign out_overflow = overflow;
 endmodule
-
-
