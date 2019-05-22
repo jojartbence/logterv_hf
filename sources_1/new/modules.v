@@ -114,14 +114,14 @@ module signbit
         if(rst)
             sign_reg <= 0;
         else
-            sign_reg <= in_sign_a ^ in_sign_b;
+            sign_reg <= sign_a_local ^ sign_b_local;
     end
     always @ (posedge clk)
     begin
         if(rst)
             out <= 0;
         else
-            out <= in_sign_a ^ in_sign_b;
+            out <= sign_reg;
     end
     assign out_sign = out;
 endmodule
