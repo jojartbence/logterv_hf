@@ -17,6 +17,7 @@ wire [6:0] out_exp;
 wire [6:0] normalised_exp;
 wire [17:0] out_mantissa;
 wire [15:0] normalised_mantissa;
+reg out_sign_delayer;
 wire out_sign;
 reg [23:0] out;
 
@@ -71,13 +72,14 @@ signbit uut_signbit
     .out_sign (out_sign)
 );
     
-
-
-
+always @ (posedge clk)
+begin
+    out_sign_delayer <= out_sign;
+end
 
 always @ (posedge clk)
 begin
-    out[23] <= out_sign;
+    out[23] <= out_sign_delayer;
     out[22:16] <= normalised_exp;
     out[15:0] <= normalised_mantissa;
     overflow <= normalizer_overflow;
