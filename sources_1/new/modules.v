@@ -67,19 +67,19 @@ module multiplier
 
     reg [33:0] out;
     reg [33:0] multiplier_reg;
-    reg [15:0] mantissa_a_local;    //TODO test if it is necessary
-    reg [15:0] mantissa_b_local;
+    reg [16:0] mantissa_a_local;    //TODO test if it is necessary
+    reg [16:0] mantissa_b_local;
     always @ (posedge clk)
     begin
-        mantissa_a_local  <= in_mantissa_a;
-        mantissa_b_local <= in_mantissa_b;
+        mantissa_a_local  <= {1'b1,in_mantissa_a};
+        mantissa_b_local <= {1'b1,in_mantissa_b};
     end
     always @ (posedge clk)
     begin
         if(rst)
             multiplier_reg <= 0;
         else
-            multiplier_reg <= {1'b1,mantissa_a_local} * {1'b1,mantissa_b_local};       //the fraction part doesnt contain the hidden 1
+            multiplier_reg <= mantissa_a_local * mantissa_b_local;       //the fraction part doesnt contain the hidden 1
     end
     always @ (posedge clk)
     begin
