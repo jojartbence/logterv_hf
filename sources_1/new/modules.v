@@ -132,13 +132,19 @@ module normaliser
    input            rst,
    input [6:0]      in_exp,
    input [17:0]     in_mantissa,
+   input            in_adder_overflow,
+   input            in_adder_underflow,
    output [6:0]     out_exp_normalised,
    output [15:0]    out_mantissa_normalised,
-   output out_overflow
+   output out_overflow,
+   output out_underflow
 );
+
     reg [6:0] exp;
     reg [15:0] mantissa;
     reg overflow;
+    reg underflow;     
+      
     always @ (posedge clk)
     begin
         if(rst)
@@ -150,19 +156,22 @@ module normaliser
         begin
             if(in_mantissa[17] == 1)                
             begin
-                overflow <= (in_exp == 127);
-                exp <= in_exp + 1;
+                overflow <= (in_exp == 127) | in_adder_overflow;
                 mantissa <= in_mantissa[16:1];
             end
             else
             begin
-                overflow <= 0;
-                exp <= in_exp;
+                overflow <= in_adder_overflow;
                 mantissa <= in_mantissa[15:0];
             end
+            
+            underflow <= in_adder_underflow;
+            exp <= in_exp + in_mantissa[17];
         end
     end
     assign out_exp_normalised = exp;
     assign out_mantissa_normalised = mantissa;
+    
     assign out_overflow = overflow;
+    assign out_underflow = underflow;
 endmodule

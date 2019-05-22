@@ -24,12 +24,12 @@ top_level tl_uut
 );
 
 
-always #1.250
+always #4
    clk <= ~clk;
 
 initial
 begin
-    #0  test_float_a <= 24'b010001101001000001000000; //200,125
+    #200  test_float_a <= 24'b010001101001000001000000; //200,125
     #0  test_float_b <= 24'b001111011000000000000000; //0,375
  /*   #30  rst <= 1;
     #5  rst <= 0;
