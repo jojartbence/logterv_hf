@@ -33,7 +33,7 @@ module adder
             adder_reg <= 0;
         else
         begin
-            adder_reg <= exp_a_local + exp_b_local - 63;    //Substract the offset once because we added it two times
+            adder_reg <= exp_a_local + exp_b_local;    //Substract the offset once because we added it two times
             underflow_reg <= (exp_a_local + exp_b_local) < 63;
             overflow_reg <= (exp_a_local + exp_b_local) > 190;
         end
@@ -44,7 +44,7 @@ module adder
             out <= 0;
         else
         begin
-            out <= adder_reg;
+            out <= adder_reg - 63;
             underflow_out_reg <= underflow_reg;
             overflow_out_reg <= overflow_reg;
         end

@@ -12,6 +12,8 @@ module top_level(
     output float_out_underflow
 );
 
+reg [23:0] float_a_local;
+reg [23:0] float_b_local;
 
 wire [6:0] out_exp;
 wire [6:0] normalised_exp;
@@ -19,22 +21,30 @@ wire [17:0] out_mantissa;
 wire [15:0] normalised_mantissa;
 reg out_sign_delayer;
 wire out_sign;
-reg [23:0] out;
+
 
 wire adder_underflow;
 wire adder_overflow;
 wire normalizer_overflow;
 wire normalizer_underflow;
 
+reg [23:0] out;
 reg overflow;
 reg underflow;
+
+always @ (posedge clk)
+begin
+    float_a_local <= float_a;
+    float_b_local <= float_b;
+end
+
 
 adder uut_adder
 (
     .clk    (clk),
     .rst    (rst),
-    .in_exp_a (float_a[22:16]),
-    .in_exp_b (float_b[22:16]),
+    .in_exp_a (float_a_local[22:16]),
+    .in_exp_b (float_b_local[22:16]),
     .out_exp (out_exp),
     .out_underflow (adder_underflow),
     .out_overflow (adder_overflow)
@@ -44,8 +54,8 @@ multiplier uut_multiplier
 (
     .clk    (clk),
     .rst    (rst),
-    .in_mantissa_a (float_a[15:0]),
-    .in_mantissa_b (float_b[15:0]),
+    .in_mantissa_a (float_a_local[15:0]),
+    .in_mantissa_b (float_b_local[15:0]),
     .out_mantissa (out_mantissa)
 );
 
@@ -67,8 +77,8 @@ signbit uut_signbit
 (
     .clk (clk),
     .rst (rst),
-    .in_sign_a (float_a[23]),
-    .in_sign_b (float_b[23]),
+    .in_sign_a (float_a_local[23]),
+    .in_sign_b (float_b_local[23]),
     .out_sign (out_sign)
 );
     
